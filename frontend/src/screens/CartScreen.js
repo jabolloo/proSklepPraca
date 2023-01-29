@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom'
-import { 
+import {
   Row,
   Col,
   Image,
@@ -38,7 +38,7 @@ function CartScreen() {
     navigate('/login?redirect=shipping')
   }
 
-  console.log(cartItems)
+  // console.log(cartItems)
   return (
     <Row>
       <Col md={8}>
@@ -115,7 +115,7 @@ function CartScreen() {
               </Button>
             </ListGroupItem>
           </ListGroup>
-        
+
       </Col>
     </Row>
   )

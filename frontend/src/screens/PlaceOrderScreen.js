@@ -1,17 +1,18 @@
-import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { useState } from 'react'
-import { useLocation, useNavigate} from 'react-router-dom'
+import React from 'react'
+import { Route, Link, useNavigate } from 'react-router-dom'
 import { Button, Row, Col, ListGroup, Image, Card, ListGroupItem } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
+import {addOrder} from "../features/order/orderService";
+import {clearCart} from "../features/cart/cartSlice";
+
 
 
 
 
 const PlaceOrderScreen = ({history}) => {
-  
+
     const dispatch = useDispatch()
 
     const cart = useSelector((state) => state.cart)
@@ -25,10 +26,13 @@ const itemsPrice = addDecimals(cart.cartItems.reduce(
     (acc, item) => acc + item.price * item.qty, 0))
 
 
+    const { user } = useSelector((state) => state.auth)
+    const navigate = useNavigate()
 
 
-const shippingPrice = (itemsPrice > 100 ? 0 : 8.99)
-    
+
+    const shippingPrice = (itemsPrice > 100 ? 0 : 8.99)
+
 
 const totalPrice = addDecimals(Number(itemsPrice) + Number(shippingPrice))
 
@@ -37,17 +41,32 @@ const totalPrice = addDecimals(Number(itemsPrice) + Number(shippingPrice))
 
 
 const placeOrderHandler = () => {
-    dispatch(
-      createOrder({
+    // dispatch(
+    //   createOrder({
+    //     orderItems: cart.cartItems,
+    //     shippingAddress: cart.shippingAddress,
+    //     paymentMethod: cart.paymentMethod,
+    //     itemsPrice: cart.itemsPrice,
+    //     shippingPrice: cart.shippingPrice,
+    //     taxPrice: cart.taxPrice,
+    //     totalPrice: cart.totalPrice,
+    //   })
+    // )
+
+    const order = addOrder({
         orderItems: cart.cartItems,
         shippingAddress: cart.shippingAddress,
         paymentMethod: cart.paymentMethod,
-        itemsPrice: cart.itemsPrice,
-        shippingPrice: cart.shippingPrice,
-        taxPrice: cart.taxPrice,
-        totalPrice: cart.totalPrice,
-      })
-    )
+        itemsPrice: itemsPrice,
+        shippingPrice: shippingPrice,
+        taxPrice: totalPrice * 0.23,
+        totalPrice: totalPrice,
+        user: user._id
+    }).then(res => {
+        dispatch(clearCart());
+        navigate(`/order/${res}`);
+    });
+
   }
 
 
@@ -65,7 +84,7 @@ const placeOrderHandler = () => {
             {cart.shippingAddress.postalCode}   {cart.shippingAddress.city}
             </p>
             </ListGroupItem>
-            
+
             <ListGroupItem>
             <h1> Metoda płatności </h1>
             {cart.paymentMethod}
@@ -73,21 +92,21 @@ const placeOrderHandler = () => {
 
             <ListGroupItem>
             <h1> Wybrane produkty </h1>
-            {cart.cartItems.lenght === 0 ? ( <Message> Twój koszyk jest pusty</Message> 
+            {cart.cartItems.lenght === 0 ? ( <Message> Twój koszyk jest pusty</Message>
             ) : (
             <ListGroup variant='flush'>
-            {cart.cartItems.map((item) => ( 
+            {cart.cartItems.map((item) => (
             <ListGroupItem key={item.product}>
                 <Row>
                     <Col md={1}>
                     <Image src={item.image} alt={item.name}
                     fluid rounded />
                     </Col>
-                    
+
                     <Col>
                     <Link to={`/product/${item.product}`}>{item.name}</Link>
                     </Col>
-                    
+
                     <Col md={4}>
                     {item.qty} x {item.price} zł = {item.qty * item.price} zł
                     </Col>
@@ -123,7 +142,7 @@ const placeOrderHandler = () => {
                         <Col>{totalPrice} zł</Col>
                     </Row>
                 </ListGroupItem>
-              
+
                 <ListGroupItem>
                 <Button
                   type='button'

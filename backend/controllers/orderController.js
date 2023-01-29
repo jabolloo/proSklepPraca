@@ -4,53 +4,61 @@ import Order from '../models/orderModel.js'
 //  @desc  Create new order
 //  @route POST /api/orders
 //  @access Private
-const addOrderItems= asyncHandler(async (req, res) => {
-    const {
-orderItems,
-shippingAddress,
-paymentMethod,
-itemsPrice,
-shippingPrice,
-totalPrice,
-    } = req.body
+const addOrderItems = asyncHandler(async (req, res) => {
+  const {
+    orderItems,
+    shippingAddress,
+    paymentMethod,
+    itemsPrice,
+    shippingPrice,
+    totalPrice,
+    user
+  } = req.body
 
-if(orderItems && orderItems.lenght === 0) {
+  if (orderItems && orderItems.lenght === 0) {
     res.status(400)
     throw new Error('Brak przedmiotów w zamówieniu')
     return
-} else {
+  } else {
     const order = new Order({
-orderItems,
-user: req.user._id,
-shippingAddress,
-paymentMethod,
-itemsPrice,
-shippingPrice,
-totalPrice,
+      orderItems,
+      // user: req.user._id,
+      user,
+      shippingAddress,
+      paymentMethod,
+      itemsPrice,
+      shippingPrice,
+      totalPrice,
     })
 
     const createdOrder = await order.save()
 
-    res.status(201).json(createdOrder)
+    return res.status(201).json(createdOrder)
 
-}
+  }
 
-  })
+})
 
-  //  @desc  GET order ID
+//  @desc  GET order ID
 //  @route GET /api/orders/:id
 //  @access Private
 
-const getOrderById= asyncHandler(async (req, res) => {
-   const order = await Order.findById(req.params.id).populate('user', 'name email')
+const getOrderById = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id).populate('user', 'name email')
 
-if(order) {
+  if (order) {
     res.json(order)
-} else {
+  } else {
     res.status(404)
     throw new Error('Zamówienia nie znaleziono')
-}
+  }
 
-  })
+})
 
-  export {addOrderItems, getOrderById}
+const getOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({})
+
+  res.json(orders)
+})
+
+export {addOrderItems, getOrderById, getOrders}

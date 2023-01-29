@@ -1,22 +1,31 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, {useEffect} from 'react'
+import {Link, useParams} from 'react-router-dom'
 import { useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Button, Row, Col, ListGroup, Image, Card, ListGroupItem } from 'react-bootstrap'
-import { useDispatch, useSelector } from 'react-redux'
+import { Row, Col, ListGroup, Image, Card, ListGroupItem } from 'react-bootstrap'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
-//
+import {getById} from "../features/order/orderService";
+
 
 
 const OrderScreen = () => {
-const order = useSelector((state) => state.cart)
+// const order = useSelector((state) => state.cart)
+    let { id } = useParams();
+
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState();
+    const [order, setOrder] = useState();
 
 
-
-
-
-
+    useEffect(() => {
+        const fetch = async () => {
+            const result = await getById(id).then(res => res);
+            setOrder(result);
+            setLoading(false)
+            setError(false);
+        }
+        fetch();
+    }, [id])
 
   return loading ? <Loader /> : error ? <Message variant='danger'>{error}</Message> : <>
   <h1>Zamówienie {order._id}</h1>
@@ -34,7 +43,7 @@ const order = useSelector((state) => state.cart)
             </p>
             {order.isDelivered ? <Message variant='success'>Dostarczone {order.paidAt}</Message> : <Message variant='danger'>Nie dostarczone</Message>}
             </ListGroupItem>
-            
+
             <ListGroupItem>
             <h1> Metoda płatności </h1>
             <p>
@@ -45,21 +54,21 @@ const order = useSelector((state) => state.cart)
 
             <ListGroupItem>
             <h1> Wybrane produkty </h1>
-            {order.orderItems.lenght === 0 ? ( <Message> Zamówienie jest puste </Message> 
+            {order.orderItems.lenght === 0 ? ( <Message> Zamówienie jest puste </Message>
             ) : (
             <ListGroup variant='flush'>
-            {order.orderItems.map((item, index) => ( 
+            {order.orderItems.map((item, index) => (
             <ListGroupItem key={index}>
                 <Row>
                     <Col md={1}>
                     <Image src={item.image} alt={item.name}
                     fluid rounded />
                     </Col>
-                    
+
                     <Col>
                     <Link to={`/product/${item.product}`}>{item.name}</Link>
                     </Col>
-                    
+
                     <Col md={4}>
                     {item.qty} x {item.price} zł = {item.qty * item.price} zł
                     </Col>
