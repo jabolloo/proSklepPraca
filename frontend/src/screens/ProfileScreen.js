@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Form, Button, Row, Col } from 'react-bootstrap'
+import {Form, Button, Row, Col, Table} from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 import { getUserDetails, updateUserProfile } from '../features/auth/authSlice'
+import {getById, getUserOrders} from "../features/order/orderService";
 
 function ProfileScreen() {
   const [name, setName] = useState('')
@@ -12,6 +13,10 @@ function ProfileScreen() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [msge, setMessage] = useState(null)
+  const [orders, setOrders] = useState(null);
+
+  const [errorOrders, setErrorOrders] = useState(false);
+  const [loadingOrders, setLoadingOrders] = useState(true);
 
   const { isSuccess, isLoading, isError, message, user } = useSelector(
     (state) => state.auth,
@@ -34,6 +39,17 @@ function ProfileScreen() {
       setEmail(user.email)
     }
   }, [user, navigate, dispatch])
+
+  useEffect(() => {
+    const fetch = async () => {
+      const result = await getUserOrders(user._id).then(res => res);
+      setOrders(result);
+      setErrorOrders(false);
+      setLoadingOrders(false);
+    }
+    fetch();
+
+  }, [])
 
   const submitHandler = (e) => {
     e.preventDefault()
@@ -104,8 +120,57 @@ function ProfileScreen() {
         </Form>
       </Col>
       <Col md={9}>
-        <h2>Moje zamówienia</h2>
+        <h2>My Orders</h2>
+        {loadingOrders ? (
+          <Loader />
+        ) : errorOrders ? (
+          <Message variant='danger'>{errorOrders}</Message>
+        ) : (
+          <Table striped bordered hover responsive className='table-sm'>
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>DATE</th>
+              <th>TOTAL</th>
+              <th>PAID</th>
+              <th>DELIVERED</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {orders.map((order) => (
+              <tr key={order._id}>
+                <td>{order._id}</td>
+                <td>{order.createdAt.substring(0, 10)}</td>
+                <td>{order.totalPrice}</td>
+                <td>
+                  {order.isPaid ? (
+                    order.paidAt.substring(0, 10)
+                  ) : (
+                    <i className='fas fa-times' style={{ color: 'red' }}></i>
+                  )}
+                </td>
+                <td>
+                  {order.isDelivered ? (
+                    order.deliveredAt.substring(0, 10)
+                  ) : (
+                    <i className='fas fa-times' style={{ color: 'red' }}></i>
+                  )}
+                </td>
+                <td>
+                  <Link to={`/order/${order._id}`}>
+                    <Button className='btn-sm' variant='light'>
+                      Details
+                    </Button>
+                  </Link>
+                </td>
+              </tr>
+            ))}
+            </tbody>
+          </Table>
+        )}
       </Col>
+
     </Row>
   )
 }

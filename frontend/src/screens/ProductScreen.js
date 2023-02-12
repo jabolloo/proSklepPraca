@@ -64,7 +64,7 @@ function ProductScreen() {
       ) : (
         <Row>
           <Col md={6}>
-            <Image src={product.image}  
+            <Image src={product.image}
                alt={product.name} fluid/>
           </Col>
           <Col md={3}>
@@ -74,7 +74,7 @@ function ProductScreen() {
               </ListGroupItem>
               <ListGroupItem>
                 <Rating
-                  value={product.rating}
+                  value={product.rating ?? 0}
                   text={`${product.numReviews}  opinii`}
                 />
               </ListGroupItem>

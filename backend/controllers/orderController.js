@@ -61,4 +61,17 @@ const getOrders = asyncHandler(async (req, res) => {
   res.json(orders)
 })
 
-export {addOrderItems, getOrderById, getOrders}
+const getOrderByUserId = asyncHandler(async (req, res) => {
+  const order = await Order.find({user: req.params.userId})
+
+
+  if (order) {
+    res.json(order)
+  } else {
+    res.status(404)
+    throw new Error('Zamówienia nie znaleziono')
+  }
+
+})
+
+export {addOrderItems, getOrderById, getOrders, getOrderByUserId}

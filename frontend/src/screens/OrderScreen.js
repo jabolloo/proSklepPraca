@@ -34,8 +34,8 @@ const OrderScreen = () => {
         <ListGroup>
             <ListGroupItem variant='flush'>
             <h1>Adres wysyłki</h1>
-            <p><strong>Name: </strong> {order.user.name}</p>
-            <p><strong>Email: </strong><a href={`mailto:${order.user.email}`}>{order.user.email}</a></p>
+            <p><strong>Name: </strong> {order.user?.name}</p>
+            <p><strong>Email: </strong><a href={`mailto:${order.user?.email}`}>{order.user?.email}</a></p>
             <p>
             {order.shippingAddress.address}  <br></br>
             {order.shippingAddress.country}  <br></br>

@@ -95,8 +95,8 @@ const placeOrderHandler = () => {
             {cart.cartItems.lenght === 0 ? ( <Message> Twój koszyk jest pusty</Message>
             ) : (
             <ListGroup variant='flush'>
-            {cart.cartItems.map((item) => (
-            <ListGroupItem key={item.product}>
+            {cart.cartItems.map((item, index) => (
+            <ListGroupItem key={index}>
                 <Row>
                     <Col md={1}>
                     <Image src={item.image} alt={item.name}
